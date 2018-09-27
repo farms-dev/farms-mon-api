@@ -1,2 +1,4 @@
-# farms-mon-api
-monitoring system to farms
+# graphql-blog-cms-api
+
+## Getting Started
+
