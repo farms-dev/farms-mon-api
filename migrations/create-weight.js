@@ -20,6 +20,9 @@ module.exports = {
       },
       time: {
         type: Sequelize.TIME
+      },
+      synchronized: {
+        type: Sequelize.BOOLEAN
       }
     })
   },

@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     time: {
       type: DataTypes.TIME
+    },
+    synchronized: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     timestamps: false

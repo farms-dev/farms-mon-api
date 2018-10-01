@@ -10,6 +10,7 @@ const typeDefs = `
     weight: Float
     date: String
     time: String
+    synchronized: Boolean
   }
 
   type Mutation {
@@ -17,12 +18,17 @@ const typeDefs = `
       stationId: Int,
       weight: Float,
       date: String,
-      time: String
+      time: String,
+      synchronized: Boolean
     ): Weights
+
+    setSynchronized (id: Int): Boolean
   }
 
   type Query {
-    allWeights: [Weights]
+    allWeights: [Weights],
+    allWeightsNoSynchronized: [Weights],
+    lastWeight: [Weights]
   }
 `
 
