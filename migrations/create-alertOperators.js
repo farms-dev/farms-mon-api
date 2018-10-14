@@ -2,31 +2,37 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Weights', {
+    return queryInterface.createTable('Alerts', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      stationId: {
+      sensorId: {
         type: Sequelize.INTEGER
       },
-      weight: {
+      typeId: {
+        type: Sequelize.INTEGER
+      },
+      operatorId: {
+        type: Sequelize.INTEGER
+      },
+      firstValue: {
         type: Sequelize.DOUBLE
       },
-      date: {
-        type: Sequelize.DATE
+      secondValue: {
+        type: Sequelize.DOUBLE
       },
-      time: {
-        type: Sequelize.TIME
+      sent: {
+        type: Sequelize.BOOLEAN
       },
-      synchronized: {
+      enable: {
         type: Sequelize.BOOLEAN
       }
     })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Weights')
+    return queryInterface.dropTable('Alerts')
   }
 }

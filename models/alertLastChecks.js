@@ -1,35 +1,26 @@
 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
-  var Weights = sequelize.define('Weights', {
+  var AlertLastChecks = sequelize.define('AlertLastChecks', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false
     },
-    stationId: {
+    sensorTypeId: {
       type: DataTypes.INTEGER
     },
-    weight: {
-      type: DataTypes.DOUBLE
-    },
-    date: {
-      type: DataTypes.DATE
-    },
-    time: {
-      type: DataTypes.TIME
-    },
-    synchronized: {
-      type: DataTypes.BOOLEAN
+    sensorDataId: {
+      type: DataTypes.INTEGER
     }
   }, {
     timestamps: false
   })
-  Weights.associate = function (models) {
+  AlertLastChecks.associate = function (models) {
     /* Polyline.belongsTo(models.LineType)
     Polyline.belongsToMany(models.Waypoint, { through: 'PolylinesWaypoints' })
     Polyline.hasMany(models.PolylinesWaypoints) */
   }
-  return Weights
+  return AlertLastChecks
 }
