@@ -1,9 +1,10 @@
 'use strict'
-// var Sequelize = require('sequelize')
-// const Op = Sequelize.Op
+var Sequelize = require('sequelize')
+const Op = Sequelize.Op
 
 const {
   SensorData,
+  Sensors,
   Alerts,
   AlertTypes,
   AlertOperators,
@@ -16,6 +17,11 @@ const resolvers = {
     async allSensorData () {
       const sensorData = await SensorData.all()
       return sensorData
+    },
+
+    async allSensors () {
+      const sensors = await Sensors.all()
+      return sensors
     },
 
     async allAlerts () {
@@ -52,42 +58,50 @@ const resolvers = {
         limit: 1
       })
       return sensorData
-    } /* ,
+    },
 
-    async lastMinuteSensorData (_, {
-      time,
-      operator,
-      firstValue,
-      secondValue
-    }) {
-      let where = ''
+    async lastChecks () {
+      const sensor = await Sensors.findAll({
+        attributes: ['id', 'lastCheckId']
+      })
+      return sensor
+    },
 
-      const today = new Date()
-      const day = today.getDate()
-      const month = today.getMonth() + 1
-      const year = today.getFullYear()
-
-      const hour = today.getHours() > 9 ? today.getHours() : '0' + today.getHours()
-      const minute = today.getMinutes() > 9 : today.geteMinutes : '0' + today.getMinutes()
-
-      const date = year + month + day
-      const fisrtTime = hour + minute +
-      const secondTime = hour + minute
-
-      if (operator === '>=') {
-        where = { where: {
-          date: date,
-          time: time,
-          data: {
-            [Op.gte]: firstValue
-          },
-          order: [['id']],
-          limit: 1
-        }}
-      }
-      const sensorData = await SensorData.findAll(where)
+    async uncheckedDataSensor (_, { sensorId, lastCheckId }) {
+      const sensorData = await SensorData.findAll({
+        // attributes: ['id', 'lastCheckId']
+        where: {
+          sensorId: sensorId,
+          id: {
+            [Op.gt]: lastCheckId
+          }
+        }
+      })
       return sensorData
-    } */
+    },
+
+    async uncheckedDataSensorByOperation (_, { sensorId, lastCheckId, operation, firtValue, secondValue, sent }) {
+      let op = ''
+      if (operation === '>') {
+        op = { [Op.gt]: lastCheckId }
+      }
+      const sensorData = await SensorData.findAll({
+        // attributes: ['id', 'lastCheckId']
+        where: {
+          sensorId: sensorId,
+          id: op
+        }
+      })
+      return sensorData
+    },
+
+    async alertBySensor (_, { sensorId }) {
+      const alert = await Alerts.findAll({
+        where: { sensorId: sensorId }
+      })
+      return alert
+    }
+
   },
 
   Mutation: {
@@ -106,6 +120,17 @@ const resolvers = {
         synchronized
       })
       return sensorData
+    },
+
+    async addSensors (_, {
+      typeId,
+      lastCheckId
+    }) {
+      const sensors = await Sensors.create({
+        typeId,
+        lastCheckId
+      })
+      return sensors
     },
 
     async addAlert (_, {

@@ -13,6 +13,12 @@ const typeDefs = `
     synchronized: Boolean
   }
 
+  type Sensors {
+    id: ID!
+    typeId: Int
+    lastCheckId: Int
+  }
+
   type Alerts {
     id: ID!
     sensorId: Int
@@ -50,6 +56,11 @@ const typeDefs = `
       synchronized: Boolean
     ): SensorData
 
+    addSensors (
+      typeId: Int,
+      lastCheckId: Int
+    ): Sensors
+ 
     addAlert (
       sensorId: Int,
       typeId: Int,
@@ -79,20 +90,27 @@ const typeDefs = `
 
   type Query {
     allSensorData: [SensorData],
+    allSensors: [Sensors],
     allAlerts: [Alerts],
     allAlertTypes: [AlertTypes],
     allAlertOperators: [AlertOperators],
     allAlertLastChecks: [AlertLastChecks],
     allSensorDataNoSynchronized: [SensorData],
-    lastSensorData: [SensorData]
-
-    lastMinuteSensorData (
-      date: String,
-      time: String,
-      operator: String,
-      firstValue: Float,
-      secondValue: Float
-    ): SensorData
+    lastSensorData: [SensorData],
+    lastChecks: [Sensors],
+    uncheckedDataSensor (
+      sensorId: Int,
+      lastCheckId: Int
+    ): [SensorData],
+    uncheckedDataSensorByOperation (
+      sensorId: Int,
+      lastCheckId: Int,
+      operation: String,
+      firtValue: Float,
+      secondValue: Float,
+      sent: Boolean 
+    ): [SensorData],
+    alertBySensor (sensorId: Int): [Alerts]
   }
 `
 
