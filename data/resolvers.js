@@ -60,6 +60,15 @@ const resolvers = {
       return sensorData
     },
 
+    async lastSensorDataBySensor (_, { sensorId }) {
+      const sensorData = await SensorData.findAll({
+        where: { sensorId: sensorId },
+        order: [['id', 'DESC']],
+        limit: 1
+      })
+      return sensorData
+    },
+
     async lastChecks () {
       const sensor = await Sensors.findAll({
         attributes: ['id', 'lastCheckId']
@@ -121,6 +130,23 @@ const resolvers = {
       })
       return sensorData
     },
+
+    /* async addSensorDataServerTime (_, {
+      sensorId,
+      data,
+    }) {
+	const date
+	const time
+	const synchronized = false
+      const sensorData = await SensorData.create({
+        sensorId,
+        data,
+        date,
+        time,
+        synchronized
+      })
+      return sensorData
+    }, */
 
     async addSensors (_, {
       typeId,

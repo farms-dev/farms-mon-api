@@ -97,6 +97,7 @@ const typeDefs = `
     allAlertLastChecks: [AlertLastChecks],
     allSensorDataNoSynchronized: [SensorData],
     lastSensorData: [SensorData],
+    lastSensorDataBySensor (sensorId: Int): [SensorData],
     lastChecks: [Sensors],
     uncheckedDataSensor (
       sensorId: Int,
