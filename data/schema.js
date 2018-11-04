@@ -56,6 +56,11 @@ const typeDefs = `
       synchronized: Boolean
     ): SensorData
 
+    addSensorDataServerTime (
+      sensorId: Int,
+      data: Float
+    ): SensorData
+
     addSensors (
       typeId: Int,
       lastCheckId: Int

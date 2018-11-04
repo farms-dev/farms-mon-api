@@ -131,13 +131,28 @@ const resolvers = {
       return sensorData
     },
 
-    /* async addSensorDataServerTime (_, {
+    async addSensorDataServerTime (_, {
       sensorId,
-      data,
+      data
     }) {
-	const date
-	const time
-	const synchronized = false
+      const now = new Date()
+      const year = now.getFullYear()
+      // TODO move this for a function
+      const month = now.getMonth() < 10 ? '0' + now.getMonth() : now.getMonth()
+      const day = now.getDate() < 10 ? '0' + now.getDate() : now.getDate()
+      const hour = now.getHours() < 10 ? '0' + now.getHours() : now.getHours()
+      const minute = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes()
+      const second = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds()
+      const synchronized = false
+
+      let date = ''
+      date = date.concat(year, month, day)
+      let time = ''
+      time = time.concat(hour, minute, second)
+
+      console.log(date)
+      console.log(time)
+
       const sensorData = await SensorData.create({
         sensorId,
         data,
@@ -146,7 +161,7 @@ const resolvers = {
         synchronized
       })
       return sensorData
-    }, */
+    },
 
     async addSensors (_, {
       typeId,
