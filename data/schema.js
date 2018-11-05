@@ -116,7 +116,11 @@ const typeDefs = `
       secondValue: Float,
       sent: Boolean 
     ): [SensorData],
-    alertBySensor (sensorId: Int): [Alerts]
+    alertBySensor (sensorId: Int): [Alerts],
+    sensorDataPerDate (
+      sensorId: Int,
+      date: String 
+    ): [SensorData]
   }
 `
 
