@@ -94,14 +94,19 @@ const resolvers = {
         attributes: [
           'id',
           'data',
+          // SQLite
+          // [Sequelize.literal("substr(date, 1, 4) || '-' || substr(date, 5, 2) || '-' || substr(date, 7, 2)"), 'date'],
+          // [Sequelize.literal("substr(time, 1, 2) || ':' || substr(time, 3, 2)"), 'time']
+          // Mysql
           [Sequelize.fn('date_format', Sequelize.col('date'), '%Y-%m-%d'), 'date'],
-          [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i:%s'), 'time']
+          [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i'), 'time']
         ],
         where: {
           sensorId: sensorId,
           date: date
         }
       })
+      console.log(sensorData)
       return sensorData
     },
 
