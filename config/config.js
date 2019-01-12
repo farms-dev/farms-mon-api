@@ -4,15 +4,24 @@ require('dotenv').config()
 
 module.exports = {
   'development': {
-    'dialect': 'sqlite',
-    'storage': './database.sqlite3'
+    'username': process.env.DB_USERNAME,
+    'password': process.env.DB_PASSWORD,
+    'database': process.env.DB_NAME,
+    'host': process.env.DB_HOST,
+    'dialect': 'mysql'
   },
   'test': {
-    'dialect': 'sqlite',
-    'storage': './database.sqlite3'
+    'username': 'root',
+    'password': '',
+     'database': 'farmsmon',
+     'host': '127.0.0.1',
+     'dialect': 'mysql'
   },
   'production': {
-    'dialect': 'sqlite',
-    'storage': './database.sqlite3'
+     'username': process.env.DB_USERNAME,
+     'password': process.env.DB_PASSWORD,
+     'database': process.env.DB_NAME,
+     'host': process.env.DB_HOST,
+     'dialect': 'mysql'
   }
 }
