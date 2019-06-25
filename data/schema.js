@@ -47,6 +47,11 @@ const typeDefs = `
     sensorDataId: Int
   }
 
+  type Users {
+    id: ID!
+    email: String
+  }
+
   type Mutation {
     addSensorData (
       sensorId: Int,
@@ -90,6 +95,18 @@ const typeDefs = `
       sensorTypeId: Int
     ): AlertLastChecks
 
+    register(
+      email: String!, 
+      password: String!
+    ): Boolean!
+
+    login(
+      email: String!, 
+      password: String!
+    ): Users
+
+    logout: Boolean!
+
     setSynchronized (id: Int): Boolean
   }
 
@@ -120,7 +137,8 @@ const typeDefs = `
     sensorDataPerDate (
       sensorId: Int,
       date: String 
-    ): [SensorData]
+    ): [SensorData],
+    me: Users
   }
 `
 

@@ -1,5 +1,9 @@
 'use strict'
-var Sequelize = require('sequelize')
+const Sequelize = require('sequelize')
+const { sign } = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
+require('dotenv').config()
+
 const Op = Sequelize.Op
 
 const {
@@ -8,7 +12,8 @@ const {
   Alerts,
   AlertTypes,
   AlertOperators,
-  AlertLastChecks
+  AlertLastChecks,
+  Users
 } = require('../models')
 require('dotenv').config()
 
@@ -95,11 +100,11 @@ const resolvers = {
           'id',
           'data',
           // SQLite
-          // [Sequelize.literal("substr(date, 1, 4) || '-' || substr(date, 5, 2) || '-' || substr(date, 7, 2)"), 'date'],
-          // [Sequelize.literal("substr(time, 1, 2) || ':' || substr(time, 3, 2)"), 'time']
+          [Sequelize.literal("substr(date, 1, 4) || '-' || substr(date, 5, 2) || '-' || substr(date, 7, 2)"), 'date'],
+          [Sequelize.literal("substr(time, 1, 2) || ':' || substr(time, 3, 2)"), 'time']
           // Mysql
-          [Sequelize.fn('date_format', Sequelize.col('date'), '%Y-%m-%d'), 'date'],
-          [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i'), 'time']
+          // [Sequelize.fn('date_format', Sequelize.col('date'), '%Y-%m-%d'), 'date'],
+          // [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i'), 'time']
         ],
         where: {
           sensorId: sensorId,
@@ -130,6 +135,14 @@ const resolvers = {
         where: { sensorId: sensorId }
       })
       return alert
+    },
+
+    me: (_, __, { req }) => {
+      if (!req.userId) {
+        return null
+      }
+
+      return Users.findById(req.userId)
     }
 
   },
@@ -259,6 +272,66 @@ const resolvers = {
         )
       }
       return result
+    },
+
+    async register (_, { email, password }) {
+      const hashedPassword = await bcrypt.hash(password, 10)
+      await Users.create({
+        email,
+        password: hashedPassword
+      })
+      return true
+    },
+
+    async login (_, { email, password }, { res }) {
+      const user = await Users.findOne({
+        where: { email }
+      })
+      if (!user) {
+        return null
+      }
+
+      const valid = await bcrypt.compare(password, user.password)
+      if (!valid) {
+        return null
+      }
+
+      const refreshToken = sign(
+        { userId: user.id },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+          expiresIn: '7d'
+        }
+      )
+      const accessToken = sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '15min'
+      })
+
+      res.cookie('refresh-token', refreshToken)
+      res.cookie('access-token', accessToken)
+
+      user.logged = true
+      await user.save()
+
+      return user
+    },
+
+    async logout (_, __, { req, res }) {
+      if (!req.userId) {
+        return false
+      }
+
+      const user = await Users.findById(req.userId)
+      if (!user) {
+        return null
+      }
+      user.logged = false
+      await user.save()
+
+      res.clearCookie('access-token')
+      res.clearCookie('refresh-token')
+
+      return true
     }
   }
 
