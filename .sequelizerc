@@ -1,5 +1,7 @@
 const path = require('path');
+require('dotenv').config()
+const dbType = process.env.DB_TYPE || 'mysql'
 
 module.exports = {
-  'config': path.resolve('config', 'config.js')
+  'config': path.resolve('config', `config-${dbType}.js`)
 }
