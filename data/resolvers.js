@@ -1,52 +1,22 @@
 'use strict'
-const Sequelize = require('sequelize')
-const { sign } = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
-require('dotenv').config()
-
-const Op = Sequelize.Op
+var Sequelize = require('sequelize');
 
 const {
   SensorData,
   Sensors,
-  Alerts,
-  AlertTypes,
-  AlertOperators,
-  AlertLastChecks,
-  Users
 } = require('../models')
 require('dotenv').config()
 
 const resolvers = {
   Query: {
     async allSensorData () {
-      const sensorData = await SensorData.all()
+      const sensorData = await SensorData.findAll()
       return sensorData
     },
 
     async allSensors () {
       const sensors = await Sensors.all()
       return sensors
-    },
-
-    async allAlerts () {
-      const alerts = await Alerts.all()
-      return alerts
-    },
-
-    async allAlertTypes () {
-      const alertTypes = await AlertTypes.all()
-      return alertTypes
-    },
-
-    async allAlertOperators () {
-      const alertOperator = await AlertOperators.all()
-      return alertOperator
-    },
-
-    async allAlertLastChecks () {
-      const alertLastCheck = await AlertLastChecks.all()
-      return alertLastCheck
     },
 
     async allSensorDataNoSynchronized () {
@@ -99,19 +69,14 @@ const resolvers = {
         attributes: [
           'id',
           'data',
-          // SQLite
-          [Sequelize.literal("substr(date, 1, 4) || '-' || substr(date, 5, 2) || '-' || substr(date, 7, 2)"), 'date'],
-          [Sequelize.literal("substr(time, 1, 2) || ':' || substr(time, 3, 2)"), 'time']
-          // Mysql
-          // [Sequelize.fn('date_format', Sequelize.col('date'), '%Y-%m-%d'), 'date'],
-          // [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i'), 'time']
+          [Sequelize.fn('date_format', Sequelize.col('date'), '%Y-%m-%d'), 'date'],
+          [Sequelize.fn('time_format', Sequelize.col('time'), '%H:%i:%s'), 'time']
         ],
         where: {
           sensorId: sensorId,
           date: date
         }
       })
-      console.log(sensorData)
       return sensorData
     },
 
@@ -129,21 +94,6 @@ const resolvers = {
       })
       return sensorData
     },
-
-    async alertBySensor (_, { sensorId }) {
-      const alert = await Alerts.findAll({
-        where: { sensorId: sensorId }
-      })
-      return alert
-    },
-
-    me: (_, __, { req }) => {
-      if (!req.userId) {
-        return null
-      }
-
-      return Users.findById(req.userId)
-    }
 
   },
 
@@ -184,9 +134,6 @@ const resolvers = {
       let time = ''
       time = time.concat(hour, minute, second)
 
-      console.log(date)
-      console.log(time)
-
       const sensorData = await SensorData.create({
         sensorId,
         data,
@@ -208,58 +155,6 @@ const resolvers = {
       return sensors
     },
 
-    async addAlert (_, {
-      sensorId,
-      typeId,
-      operatorId,
-      firstValue,
-      secondValue,
-      sent,
-      enable
-    }) {
-      const alert = await Alerts.create({
-        sensorId,
-        typeId,
-        operatorId,
-        firstValue,
-        secondValue,
-        sent,
-        enable
-      })
-      return alert
-    },
-
-    async addAlertType (_, {
-      type
-    }) {
-      const alertType = await AlertTypes.create({
-        type
-      })
-      return alertType
-    },
-
-    async addAlertOperator (_, {
-      operator,
-      twoValues
-    }) {
-      const alertOperator = await AlertOperators.create({
-        operator,
-        twoValues
-      })
-      return alertOperator
-    },
-
-    async addAlertLastCheck (_, {
-      sensorTypeId,
-      sensorDataId
-    }) {
-      const alertLastCheck = await AlertLastChecks.create({
-        sensorTypeId,
-        sensorDataId
-      })
-      return alertLastCheck
-    },
-
     async setSynchronized (_, { id }) {
       let result = false
       let sensorData = await SensorData.findById(id)
@@ -272,75 +167,8 @@ const resolvers = {
         )
       }
       return result
-    },
-
-    async register (_, { email, password }) {
-      const hashedPassword = await bcrypt.hash(password, 10)
-      await Users.create({
-        email,
-        password: hashedPassword
-      })
-      return true
-    },
-
-    async login (_, { email, password }, { res }) {
-      const user = await Users.findOne({
-        where: { email }
-      })
-      if (!user) {
-        return null
-      }
-
-      const valid = await bcrypt.compare(password, user.password)
-      if (!valid) {
-        return null
-      }
-
-      const refreshToken = sign(
-        { userId: user.id },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-          expiresIn: '7d'
-        }
-      )
-      const accessToken = sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '15min'
-      })
-
-      res.cookie('refresh-token', refreshToken)
-      res.cookie('access-token', accessToken)
-
-      user.logged = true
-      await user.save()
-
-      return user
-    },
-
-    async logout (_, __, { req, res }) {
-      if (!req.userId) {
-        return false
-      }
-
-      const user = await Users.findById(req.userId)
-      if (!user) {
-        return null
-      }
-      user.logged = false
-      await user.save()
-
-      res.clearCookie('access-token')
-      res.clearCookie('refresh-token')
-
-      return true
     }
   }
-
-  /* Polyline: {
-    async waypoint (polyline) {
-      const waypoint = await polyline.getWaypoints()
-      return waypoint
-    }
-  } */
 }
 
 module.exports = resolvers

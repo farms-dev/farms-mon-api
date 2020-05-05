@@ -1,6 +1,8 @@
 node_modules
+*.log
+*.swp
+*.swo
+*.swn
+public/bundle.js
 .env
-*sw*
-database.sqlite3
-package-lock.json
-.vscode*
+tags

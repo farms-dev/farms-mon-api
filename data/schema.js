@@ -1,9 +1,10 @@
 'use strict'
+const { gql } = require('apollo-server-express')
 
 const { makeExecutableSchema } = require('graphql-tools')
 const resolvers = require('./resolvers')
 
-const typeDefs = `
+const typeDefs = gql`
   type SensorData {
     id: ID!
     sensorId: Int
@@ -17,39 +18,6 @@ const typeDefs = `
     id: ID!
     typeId: Int
     lastCheckId: Int
-  }
-
-  type Alerts {
-    id: ID!
-    sensorId: Int
-    typeId: Int
-    operatorId: Int
-    firstValue: Float
-    secondValue: Float
-    sent: Boolean
-    enable: Boolean
-  }
-
-  type AlertTypes {
-    id: ID!
-    type: String
-  }
-
-  type AlertOperators {
-    id: ID!
-    operator: String
-    twoValues: Boolean
-  }
-
-  type AlertLastChecks {
-    id: ID!
-    sensorTypeId: Int
-    sensorDataId: Int
-  }
-
-  type Users {
-    id: ID!
-    email: String
   }
 
   type Mutation {
@@ -71,52 +39,12 @@ const typeDefs = `
       lastCheckId: Int
     ): Sensors
  
-    addAlert (
-      sensorId: Int,
-      typeId: Int,
-      operatorId: Int,
-      firstValue: Float,
-      secondValue: Float,
-      sent: Boolean,
-      enable: Boolean
-    ): Alerts
-
-    addAlertType (
-      type: String
-    ): AlertTypes
-
-    addAlertOperator (
-      operator: String,
-      twoValues: Boolean
-    ): AlertOperators
-
-    addAlertLastCheck (
-      sensorDataId: Int,
-      sensorTypeId: Int
-    ): AlertLastChecks
-
-    register(
-      email: String!, 
-      password: String!
-    ): Boolean!
-
-    login(
-      email: String!, 
-      password: String!
-    ): Users
-
-    logout: Boolean!
-
     setSynchronized (id: Int): Boolean
   }
 
   type Query {
     allSensorData: [SensorData],
     allSensors: [Sensors],
-    allAlerts: [Alerts],
-    allAlertTypes: [AlertTypes],
-    allAlertOperators: [AlertOperators],
-    allAlertLastChecks: [AlertLastChecks],
     allSensorDataNoSynchronized: [SensorData],
     lastSensorData: [SensorData],
     lastSensorDataBySensor (sensorId: Int): [SensorData],
@@ -133,13 +61,11 @@ const typeDefs = `
       secondValue: Float,
       sent: Boolean 
     ): [SensorData],
-    alertBySensor (sensorId: Int): [Alerts],
     sensorDataPerDate (
       sensorId: Int,
       date: String 
-    ): [SensorData],
-    me: Users
+    ): [SensorData]
   }
 `
 
-module.exports = makeExecutableSchema({ typeDefs, resolvers })
+module.exports = typeDefs
